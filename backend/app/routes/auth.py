@@ -1,3 +1,4 @@
+from app.utils.email_service import send_account_email
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
@@ -13,12 +14,27 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
         name=user.name,
         email=user.email,
         password=user.password,
-        role=user.role
+        role="trainee"
     )
 
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+
+    try:
+        print("Sending email...")
+
+        send_account_email(
+            receiver_email="mish.soni.verma@gmail.com",
+            trainee_name=user.name,
+            trainee_email=user.email,
+            password=user.password
+        )
+
+        print("Email sent successfully!")
+
+    except Exception as e:
+        print(f"Email failed: {e}")
 
     return new_user
 @router.get("/users", response_model=list[UserResponse])
