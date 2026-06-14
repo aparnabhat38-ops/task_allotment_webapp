@@ -1,26 +1,37 @@
 import os
-import smtplib
-from email.message import EmailMessage
+import requests
 from dotenv import load_dotenv
 
 load_dotenv()
-EMAIL_USER = os.getenv("EMAIL_USER")
-SENDER_EMAIL = os.getenv("SENDER_EMAIL")
-EMAIL_PASS = os.getenv("EMAIL_PASS")
+
+BREVO_API_KEY = os.getenv("BREVO_API_KEY")
 
 
 def send_account_email(receiver_email, trainee_name, trainee_email, password):
-    msg = EmailMessage()
 
-    msg["Subject"] = "Task Allotment System Credentials"
-    msg["From"] = SENDER_EMAIL
-    msg["To"] = receiver_email
+    url = "https://api.brevo.com/v3/smtp/email"
 
-    msg.set_content(
-        f"""
+    headers = {
+        "accept": "application/json",
+        "api-key": BREVO_API_KEY,
+        "content-type": "application/json"
+    }
+
+    payload = {
+        "sender": {
+            "name": "Task Allotment System",
+            "email": "taskallotment298@gmail.com"
+        },
+        "to": [
+            {
+                "email": receiver_email
+            }
+        ],
+        "subject": "Task Allotment System Credentials",
+        "textContent": f"""
 Hello {trainee_name},
 
-Here are your credentials for the Task Allotment System:
+Your account has been created successfully.
 
 Email: {trainee_email}
 Password: {password}
@@ -28,15 +39,18 @@ Password: {password}
 Regards,
 Task Management Team
 """
-    )
+    }
 
     try:
-        with smtplib.SMTP("smtp-relay.brevo.com", 587) as smtp:
-            smtp.starttls()
-            smtp.login(EMAIL_USER, EMAIL_PASS)
-            smtp.send_message(msg)
+        response = requests.post(
+            url,
+            json=payload,
+            headers=headers,
+            timeout=10
+        )
 
-        print("✅ Email sent successfully!")
+        print("Brevo Status:", response.status_code)
+        print("Brevo Response:", response.text)
 
     except Exception as e:
-        print("❌ Email Error:", e)
+        print("Brevo Error:", e)
