@@ -46,6 +46,16 @@ def get_pending_requests(
     ).all()
 
     return requests
+
+@router.get(
+    "/all-requests",
+    response_model=list[ApprovalResponse]
+)
+def get_all_requests(
+    db: Session = Depends(get_db)
+):
+    requests = db.query(ApprovalRequest).all()
+    return requests
 @router.post("/approve/{request_id}")
 def approve_request(
     request_id: int,
