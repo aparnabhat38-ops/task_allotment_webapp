@@ -21,6 +21,11 @@ function TaskForm({ addTask }) {
       alert("Please enter a task name or title");
       return;
     }
+    const titleRegex= /[a-zA-Z]/;
+    if(!titleRegex.test(taskName)){
+      alert("task tiltle must contain letters");
+      return;
+    }
 
     if (updateUrl && !validateURL(updateUrl)) {
       alert("Please enter a valid URL (starting with http:// or https://) for the Task Update URL.");

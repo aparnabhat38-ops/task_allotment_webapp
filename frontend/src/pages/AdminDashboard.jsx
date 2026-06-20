@@ -81,7 +81,11 @@ function AdminDashboard() {
   }, []);
 
   const createUser = async () => {
-    try {
+    try {if (!name.trim()|| !email.trim() || !
+          password.trim()){
+            alert("all fields are required");
+            return;
+          }
       await API.post("/create-user", {
         name,
         email,
